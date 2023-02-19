@@ -1,0 +1,19 @@
+#compdef watch
+
+# zsh completion for zsh-watch
+
+arguments=(
+    '(-d --differences)'{-d,--differences}'[highlight changes between updates]'
+    {-n,--interval}'[set interval between updates]:interval'
+    {-t,--no-title}'[do not print title line]'
+    {-v,--version}'[display version information]'
+    {-h,--help}'[display help text]'
+    '1: :_command_names -e'
+    '*:: :_normal -p'
+)
+
+_watch() {
+    _arguments -s $arguments
+}
+
+_watch
