@@ -1,19 +1,61 @@
 #compdef watch
 
-# zsh completion for zsh-watch
+setopt localoptions extended_glob
 
-arguments=(
-    '(-d --differences)'{-d,--differences}'[highlight changes between updates]'
-    {-n,--interval}'[set interval between updates]:interval'
-    {-t,--no-title}'[do not print title line]'
-    {-v,--version}'[display version information]'
-    {-h,--help}'[display help text]'
-    '1: :_command_names -e'
-    '*:: :_normal -p'
-)
+_zsh_watch() {
+    arguments=(
+        '(-d --differences)'{-d,--differences}'[highlight changes between updates]'
+        {-n,--interval}'[set interval between updates]:interval'
+        {-t,--no-title}'[do not print title line]'
+        {-v,--version}'[display version information]'
+        {-h,--help}'[display help text]'
+        '1: :_command_names -e'
+        '*:shell arguments:= ->rest'
+    )
 
-_watch() {
-    _arguments -s $arguments
+    _arguments -A "-*" -S $arguments
+
+    case $state in
+    rest)
+        # strip watch and its flags
+        (( strip = $CURRENT - $#line))
+        (( CURRENT -= strip ))
+        words[1,strip]=()
+
+        # if it's a alias, expand it
+        local cmd=( $words[1] )
+        while (( $+aliases[$cmd[1]] )); do
+            local newcmd=( ${=aliases[$cmd[1]]} $cmd[2,-1] )
+
+            # remove leading envs
+            while [[ $newcmd[1] = *=* ]]; do
+                shift newcmd
+            done
+
+            # prevent infinite loop
+            if [[ $cmd[1] = $newcmd[1] ]]; then
+                break
+            fi
+
+            cmd=( $newcmd )
+        done
+
+        local space=''
+        if [[ -z $words[$CURRENT] ]]; then
+            # current word is a space, save it
+            space=' '
+        fi
+
+        (( CURRENT += $#cmd - 1 ))
+        words=( $cmd $words[2,-1] )
+        if [[ -n $space ]]; then
+            (( i = CURRENT - 1 ))
+            words=( ${words[@]:0:$i} ' ' ${words[@]:$i} )
+        fi
+
+        _normal -p $service
+    ;;
+    esac
 }
 
-_watch
+_zsh_watch
