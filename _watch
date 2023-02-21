@@ -4,11 +4,18 @@ setopt localoptions extended_glob
 
 _zsh_watch() {
     arguments=(
-        '(-d --differences)'{-d,--differences}'[highlight changes between updates]'
-        {-n,--interval}'[set interval between updates]:interval'
-        {-t,--no-title}'[do not print title line]'
-        {-v,--version}'[display version information]'
-        {-h,--help}'[display help text]'
+        '(: * -)'{-h,--help}'[display this help and exit]' \
+        '(: * -)'{-v,--version}'[output version information and exit]' \
+        '(-b --beep)'{-b,--beep}'[beep if command has a non-zero exit]' \
+        '(-c --color)'{-c,--color}'[interpret ANSI color and style sequences]' \
+        '(-d --differences)'{-d-,--differences=-}'[highlight changes between updates]::how to highlight:(permanent)' \
+        '(-e --errexit)'{-e,--errexit}'[exit if command has a non-zero exit]' \
+        '(-g --chgexit)'{-g,--chgexit}'[exit when output from command changes]' \
+        '(-n --interval)'{-n+,--interval=}'[seconds to wait between updates]:secs' \
+        '(-p --precise)'{-p,--precise}'[attempt run command in precise intervals]' \
+        '(-r --no-rerun)'{-r,--no-rerun}'[do not rerun program on window resize]' \
+        '(-t --no-title)'{-t,--no-title}'[turn off header]' \
+        '(-x --exec)'{-x,--exec}'[pass command to exec instead of "sh -c"]' \
         '1: :_command_names -e'
         '*:shell arguments:= ->rest'
     )
@@ -40,18 +47,9 @@ _zsh_watch() {
             cmd=( $newcmd )
         done
 
-        local space=''
-        if [[ -z $words[$CURRENT] ]]; then
-            # current word is a space, save it
-            space=' '
-        fi
-
         (( CURRENT += $#cmd - 1 ))
-        words=( $cmd $words[2,-1] )
-        if [[ -n $space ]]; then
-            (( i = CURRENT - 1 ))
-            words=( ${words[@]:0:$i} ' ' ${words[@]:$i} )
-        fi
+        words[1,1]=()
+        words=( "$cmd[@]" "$words[@]" )
 
         _normal -p $service
     ;;

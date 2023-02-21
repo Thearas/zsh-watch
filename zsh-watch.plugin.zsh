@@ -28,10 +28,12 @@ _zsh_watch_run() {
             $watch_exec -h
             return
             ;;
-        -n | --interval)
+        -n | --interval | -q | --equexit | -d | --differences)
             watch_flags+=($1)
-            watch_flags+=($2)
-            shift
+            if [[ ! $2 = -* ]]; then
+                watch_flags+=($2)
+                shift
+            fi
             ;;
         -*) watch_flags+=($1) ;;
         *) break ;;
@@ -51,11 +53,7 @@ _zsh_watch_run() {
     local cmd="$(_zsh_watch_expand_alias $1)"
     local cmd_args="${@:2}"
 
-    if which $1 >&/dev/null; then
-        $watch_exec ${watch_flags[*]} $cmd ${cmd_args[*]}
-    else
-        $watch_exec ${watch_flags[*]} zsh -c \"$cmd ${cmd_args[*]}\"
-    fi
+    $watch_exec ${watch_flags[*]} $cmd ${cmd_args[*]}
 }
 
 watch() {

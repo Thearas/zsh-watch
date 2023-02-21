@@ -27,7 +27,6 @@ watch -c -n1 -d -t kgp
 
 2. Add `zsh-watch` to the plugins array in your zshrc file.
 
-
     - Oh-My-Zsh
 
         ```bash
