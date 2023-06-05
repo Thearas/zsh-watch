@@ -29,7 +29,7 @@ _zsh_watch() {
         (( CURRENT -= strip ))
         words[1,strip]=()
 
-        # if it's a alias, expand it
+        # expand aliases
         local cmd=( $words[1] )
         while (( $+aliases[$cmd[1]] )); do
             local newcmd=( ${=aliases[$cmd[1]]} $cmd[2,-1] )

@@ -3,11 +3,6 @@
 ZSH_WATCH=${ZSH_WATCH:-watch}
 ZSH_WATCH_FLAGS=${ZSH_WATCH_FLAGS:-"-n1 -t -d"} # Default flags for watch
 
-_zsh_watch_expand_alias() {
-    functions[_alias_]=$1
-    echo ${functions[_alias_]}
-}
-
 _zsh_watch_run() {
     if (( ! $+commands[$ZSH_WATCH] )); then
         echo -e "\033[31mCommand $ZSH_WATCH not found.\033[0m"
@@ -50,8 +45,13 @@ _zsh_watch_run() {
         return 1
     fi
 
-    local cmd="$(_zsh_watch_expand_alias $1)"
+    local cmd=$1
     local cmd_args="${@:2}"
+
+    # expand aliases
+    unset 'functions[_zsh-watch-expand]'
+    functions[_zsh-watch-expand]=$cmd
+    (($+functions[_zsh-watch-expand])) && cmd=${functions[_zsh-watch-expand]#$'\t'} 
 
     $watch_exec ${watch_flags[*]} $cmd ${cmd_args[*]}
 }
